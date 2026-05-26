@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 import sys, base64, zlib, marshal
 from pathlib import Path
+from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
+PUB_KEY = b'-----BEGIN PUBLIC KEY-----\nMIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEA8F2qw9ozoyYzkdZmkIxr\nSTejwu/nE93OwWnf1BKPfEOvFt/rORRssJVSOkriQyBWpTPnDrlh5k1YzaLq+4jT\nQSEHAipToaZHxpeKF8qTzR7e2[...]'
 
 def aesgcm_decrypt(blob: bytes, key: bytes) -> bytes:
     nonce = blob[:12]
@@ -17,9 +21,13 @@ try:
         sys.exit(1)
     sig_b64, enc_b64, sym_b64 = blob.split(b".", 2)
     enc = base64.b64decode(enc_b64)
+    sig = base64.b64decode(sig_b64)
     sym_key = base64.b64decode(sym_b64)
 
-    # Skip signature verification - no license needed
+    # License verification removed - skip this step
+    # pub = serialization.load_pem_public_key(PUB_KEY)
+    # pub.verify(sig, enc_b64, padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
+
     data = zlib.decompress(aesgcm_decrypt(enc, sym_key))
     try:
         code = marshal.loads(data)
