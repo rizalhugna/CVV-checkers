@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import sys, base64, zlib, marshal, traceback
+import sys, base64, zlib, marshal, traceback, builtins
 from pathlib import Path
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
@@ -73,7 +73,7 @@ try:
         code = compile(data.decode('utf-8'), "<run>", "exec")
     
     print(f"[*] Executing code with license bypass...")
-    bypass = LicenseBypass(__builtins__['input'])
+    bypass = LicenseBypass(builtins.input)
     exec(code, {'__name__': '__main__', 'input': bypass})
     print(f"[+] Code execution completed!")
     
